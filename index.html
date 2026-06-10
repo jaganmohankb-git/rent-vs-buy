@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rent vs Buy Calculator India — JK Advisory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --t:#1D9E75;--tl:#E1F5EE;--td:#085041;
+  --a:#BA7517;--al:#FAEEDA;
+  --b:#185FA5;--bl:#E6F1FB;
+  --r:#A32D2D;--rl:#FCEBEB;
+  --c:#D85A30;--cl:#FFF3EF;--cd:#4A1B0C;
+  --tx:#1a1a1a;--tx2:#555;--tx3:#888;--tx4:#aaa;
+  --bg:#fff;--bg2:#F8F7F4;--bg3:#ECEAE3;
+  --bd:rgba(0,0,0,.11);--bd2:rgba(0,0,0,.2);
+  --rad:8px;--radl:12px
+}
+body{font-family:-apple-system,'Segoe UI',sans-serif;color:var(--tx);background:var(--bg);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.pg{max-width:500px;margin:0 auto;padding:1rem 1rem 3rem}
+/* top bar */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+.topbar h1{font-size:19px;font-weight:700;margin-bottom:1px}
+.topbar .sub{font-size:11px;color:var(--tx3);line-height:1.4}
+.share-top{flex-shrink:0;margin-left:10px;padding:7px 11px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg2);cursor:pointer;color:var(--tx2);font-size:12px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+/* selects */
+select{width:100%;padding:9px 32px 9px 11px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg);color:var(--tx);font-size:14px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
+.sel-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem}
+.sel-label{font-size:11px;color:var(--tx3);margin-bottom:3px;font-weight:500}
+/* other city inputs */
+.other-city-wrap{display:none;margin-top:.6rem;background:var(--bg2);border-radius:var(--rad);padding:.8rem;border-left:3px solid var(--a)}
+.other-city-wrap .oci{font-size:12px;font-weight:600;color:var(--a);margin-bottom:.5rem}
+input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg);color:var(--tx);font-size:13px;margin-bottom:.4rem}
+/* assumption accordion */
+.assume-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:.65rem .75rem;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg2);cursor:pointer;font-size:13px;color:var(--tx2);margin-top:.5rem}
+.assume-toggle .arrow{transition:transform .2s;font-size:11px}
+.assume-toggle.open .arrow{transform:rotate(180deg)}
+.assume-body{display:none;padding:.75rem 0 .25rem}
+/* sliders */
+.field{margin-bottom:.8rem}
+.fl{font-size:13px;color:var(--tx2);display:flex;justify-content:space-between;margin-bottom:3px}
+.fl b{color:var(--tx);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--t);height:4px;cursor:pointer;margin-top:2px}
+.hint{font-size:10.5px;color:var(--tx4);margin-top:2px;line-height:1.4}
+/* prop + bhk toggles */
+.tog2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.8rem}
+.tog3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:.8rem}
+.tb{padding:7px 4px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg);font-size:12px;cursor:pointer;color:var(--tx2);text-align:center;transition:all .14s;line-height:1.3}
+.tb.on{border-color:var(--t);color:var(--t);background:var(--tl);font-weight:600}
+/* assumption source card */
+.src-card{background:var(--bg2);border-radius:var(--rad);padding:.7rem .85rem;margin:.4rem 0 .6rem;font-size:12px;color:var(--tx2);border-left:3px solid var(--t);line-height:1.6}
+.src-card .row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--bd)}
+.src-card .row:last-child{border:none}
+.src-card .lbl{color:var(--tx3)}
+.src-card .val{font-weight:600;color:var(--tx)}
+.src-card .src{font-size:10px;color:var(--tx4);margin-top:4px}
+/* verdict */
+.vdict{border-radius:var(--radl);padding:1rem;margin:.9rem 0 .7rem;display:none}
+.vdict.buy{background:var(--tl);border:1px solid #5DCAA5}
+.vdict.rent{background:var(--al);border:1px solid #EF9F27}
+.vdict.dep{background:var(--bl);border:1px solid #85B7EB}
+.vico{font-size:24px;margin-bottom:3px}
+.vtit{font-size:17px;font-weight:700;margin-bottom:3px}
+.vsub{font-size:12.5px;color:var(--tx2);line-height:1.55}
+/* metrics */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.85rem}
+.mc{background:var(--bg2);border-radius:var(--rad);padding:.75rem}
+.mc.wide{grid-column:1/-1;border-left:3px solid var(--t)}
+.ml{font-size:11px;color:var(--tx3);margin-bottom:2px}
+.mv{font-size:15px;font-weight:700}
+.ms{font-size:10.5px;color:var(--tx4);margin-top:1px}
+/* total cost table */
+.tct{background:var(--bg2);border-radius:var(--radl);padding:.85rem;margin:.75rem 0;display:none}
+.tct-h{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.55rem}
+.tct-r{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid var(--bd)}
+.tct-r:last-child{border:none;font-weight:700;font-size:13.5px;padding-top:7px}
+.tct-r .amt{font-weight:600}
+/* charts */
+.tabs{display:flex;gap:5px;margin-bottom:.65rem}
+.tab{flex:1;padding:7px 3px;font-size:11px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg);cursor:pointer;color:var(--tx2);text-align:center;transition:all .14s}
+.tab.on{background:var(--bg2);color:var(--tx);font-weight:600;border-color:var(--bd2)}
+.leg{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--tx2);margin-bottom:4px}
+.ld{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
+.cw{position:relative;width:100%;height:200px}
+/* rate box */
+.rbox{background:var(--cl);border:1px solid #F0997B;border-radius:var(--rad);padding:.8rem;margin:.85rem 0;display:none}
+.rbh{font-size:12px;font-weight:700;color:var(--cd);margin-bottom:6px}
+.rr{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;border-bottom:1px solid rgba(0,0,0,.05)}
+.rr:last-child{border:none}
+.rrl{color:var(--tx2)}
+/* dep note */
+.dbox{background:var(--rl);border:1px solid #F09595;border-radius:var(--rad);padding:.75rem;margin:.5rem 0;font-size:12.5px;display:none}
+.dbh{font-weight:700;color:var(--r);margin-bottom:3px;font-size:12px}
+/* share section */
+.share-sec{display:none;margin-top:1rem}
+.share-lbl{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);margin-bottom:.5rem}
+.share-main{display:flex;gap:8px;margin-bottom:7px}
+.share-sub{display:flex;gap:8px}
+.sb{flex:1;padding:10px 7px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg);font-size:12.5px;cursor:pointer;color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:5px;transition:background .13s}
+.sb:hover{background:var(--bg2)}
+.sb.primary{background:var(--t);color:#fff;border-color:var(--t);font-weight:600}
+.sb.primary:hover{opacity:.88}
+/* referral nudge */
+.ref-nudge{margin-top:.85rem;padding:.8rem;background:var(--bg2);border-radius:var(--rad);border-left:3px solid var(--t);font-size:12.5px;color:var(--tx2)}
+.ref-nudge b{color:var(--tx);display:block;margin-bottom:3px}
+.ref-btns{display:flex;gap:7px;margin-top:.6rem}
+/* recalc */
+.recalc-btn{width:100%;margin-top:.75rem;padding:10px;border:1px solid var(--bd);border-radius:var(--rad);background:var(--bg);font-size:13px;cursor:pointer;color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:6px}
+/* results wrapper */
+.results{display:none}
+.divider{border:none;border-top:1px solid var(--bd);margin:.85rem 0}
+/* footer */
+.footer{margin-top:2rem;padding-top:.85rem;border-top:1px solid var(--bd);font-size:11px;color:var(--tx4);text-align:center;line-height:1.7}
+.footer a{color:var(--tx4);text-decoration:none}
+@media(prefers-color-scheme:dark){
+  :root{--tx:#f0ede8;--tx2:#a8a49e;--tx3:#6e6b65;--tx4:#4e4b47;--bg:#1a1917;--bg2:#242220;--bg3:#2e2c29;--bd:rgba(255,255,255,.11);--bd2:rgba(255,255,255,.2);--tl:rgba(29,158,117,.15);--al:rgba(186,117,23,.15);--bl:rgba(24,95,165,.15);--cl:rgba(216,90,48,.12);--rl:rgba(163,45,45,.12)}
+}
+</style>
+</head>
+<body>
+<div class="pg">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <h1>🏠 Rent vs Buy</h1>
+    <p class="sub">India · Auto-calculates on city & area · Not investment advice</p>
+  </div>
+  <button id="shareTopBtn" class="share-top" onclick="shareToolLink()">
+    <i class="ti ti-share-2"></i> Share tool
+  </button>
+</div>
+
+<!-- STEP 1: LOCATION -->
+<div class="sel-row">
+  <div>
+    <div class="sel-label">City</div>
+    <select id="citySelect" onchange="onCityChange()">
+      <option value="Bengaluru">Bengaluru</option>
+      <option value="Hyderabad">Hyderabad</option>
+      <option value="Chennai">Chennai</option>
+      <option value="Pune">Pune</option>
+      <option value="NCR">NCR / Delhi</option>
+      <option value="Mumbai">Mumbai</option>
+      <option value="Ahmedabad">Ahmedabad</option>
+      <option value="Kolkata">Kolkata</option>
+      <option value="Kochi">Kochi</option>
+      <option value="Coimbatore">Coimbatore</option>
+      <option value="Vizag">Vizag</option>
+      <option value="Jaipur">Jaipur</option>
+      <option value="Other">Other city…</option>
+    </select>
+  </div>
+  <div>
+    <div class="sel-label">Area / micro-market</div>
+    <select id="areaSelect" onchange="onAreaChange()"></select>
+  </div>
+</div>
+
+<!-- OTHER CITY MANUAL INPUTS -->
+<div class="other-city-wrap" id="otherCityWrap">
+  <div class="oci">⚠️ No data for this city — enter manually</div>
+  <div style="font-size:11.5px;color:var(--tx2);margin-bottom:.5rem">NHB RESIDEX doesn't cover this city yet. Enter your own estimates:</div>
+  <input type="text" id="otherCityName" placeholder="City name (e.g. Mysuru, Surat…)" oninput="autoCalc()">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div>
+      <div class="sel-label">2BHK price (₹ lakhs)</div>
+      <input type="text" id="otherPrice" placeholder="e.g. 45" oninput="autoCalc()">
+    </div>
+    <div>
+      <div class="sel-label">2BHK rent (₹/mo)</div>
+      <input type="text" id="otherRent" placeholder="e.g. 12000" oninput="autoCalc()">
+    </div>
+    <div>
+      <div class="sel-label">Appreciation % p.a.</div>
+      <input type="text" id="otherAppr" placeholder="e.g. 6" oninput="autoCalc()">
+    </div>
+    <div>
+      <div class="sel-label">Rental yield % p.a.</div>
+      <input type="text" id="otherYield" placeholder="e.g. 3.5" oninput="autoCalc()">
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2: PROPERTY TYPE + BHK -->
+<div style="display:flex;gap:8px;margin-bottom:.5rem">
+  <div style="flex:1">
+    <div class="sel-label">Property type</div>
+    <div class="tog2" id="propChips">
+      <button class="tb on" data-pt="flat" onclick="setProp(this)">New flat</button>
+      <button class="tb" data-pt="preowned" onclick="setProp(this)">Pre-owned</button>
+    </div>
+  </div>
+  <div style="flex:1">
+    <div class="sel-label">BHK</div>
+    <div class="tog3" id="bhkChips">
+      <button class="tb on" data-bhk="2" onclick="setBHK(this)">2</button>
+      <button class="tb" data-bhk="3" onclick="setBHK(this)">3</button>
+      <button class="tb" data-bhk="4" onclick="setBHK(this)">4+</button>
+    </div>
+  </div>
+</div>
+<div class="dbox" id="depNote">
+  <div class="dbh">⚠️ Pre-owned: depreciation applied</div>
+  Building (60%) depreciates 1.2% p.a. Land (40%) appreciates at city rate. Affects resale value and loan eligibility after 15+ years.
+</div>
+
+<!-- ASSUMPTIONS ACCORDION -->
+<button class="assume-toggle" id="assumeToggle" onclick="toggleAssume()">
+  <span>⚙️ Customise assumptions</span>
+  <span class="arrow">▾</span>
+</button>
+<div class="assume-body" id="assumeBody">
+
+  <div class="field">
+    <div class="fl"><label>Segment</label></div>
+    <div class="tog3" id="segChips">
+      <button class="tb" data-seg="budget" onclick="setSeg(this)">Budget</button>
+      <button class="tb on" data-seg="mid" onclick="setSeg(this)">Mid</button>
+      <button class="tb" data-seg="luxury" onclick="setSeg(this)">Luxury</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><label>Home price (₹ lakhs)</label><b id="hpV">₹80L</b></div>
+    <input type="range" min="10" max="800" step="5" value="80" id="hp" oninput="autoCalc()">
+  </div>
+
+  <div class="field">
+    <div class="fl"><label>Property appreciation (% p.a.)</label><b id="apprV">9%</b></div>
+    <input type="range" min="2" max="18" step="0.5" value="9" id="appr" oninput="autoCalc()">
+    <div class="hint" id="apprHint"></div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><label>Monthly rent — 2BHK mid (₹)</label><b id="rentV">₹35,500</b></div>
+    <input type="range" min="3000" max="250000" step="500" value="35500" id="rent" oninput="autoCalc()">
+    <div class="hint" id="rentHint"></div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><label>Annual rent increase</label><b id="rgV">7%</b></div>
+    <input type="range" min="2" max="15" step="0.5" value="7" id="rg" oninput="autoCalc()">
+    <div class="hint">NoBroker H1 2025: metro rental inflation 7–9% p.a.</div>
+  </div>
+
+  <div style="margin-bottom:.8rem">
+    <div class="sel-label" style="margin-bottom:4px">Financing</div>
+    <div class="tog2" id="loanYN">
+      <button class="tb on" data-ln="yes" onclick="setLoanYN(this)">Home loan</button>
+      <button class="tb" data-ln="no" onclick="setLoanYN(this)">Full cash</button>
+    </div>
+  </div>
+
+  <div id="loanFields">
+    <div class="field">
+      <div class="fl"><label>Down payment</label><b id="dpV">20%</b></div>
+      <input type="range" min="10" max="50" step="5" value="20" id="dp" oninput="autoCalc()">
+    </div>
+    <div class="field">
+      <div class="fl"><label>Interest rate — floating (% p.a.)</label><b id="irV">8.75%</b></div>
+      <input type="range" min="7" max="12" step="0.25" value="8.75" id="ir" oninput="autoCalc()">
+      <div class="hint">RBI repo 6.5% (Jun 2025) + spread ~2.25%</div>
+    </div>
+    <div class="field">
+      <div class="sel-label" style="margin-bottom:4px">Loan tenure</div>
+      <div class="tog3" id="tenureG">
+        <button class="tb" data-t="10" onclick="setTenure(this)">10 yrs</button>
+        <button class="tb" data-t="15" onclick="setTenure(this)">15 yrs</button>
+        <button class="tb on" data-t="20" onclick="setTenure(this)">20 yrs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><label>SIP / MF return (% p.a.)</label><b id="mfV">12%</b></div>
+    <input type="range" min="8" max="15" step="0.5" value="12" id="mf" oninput="autoCalc()">
+    <div class="hint">Nifty 50 15-yr CAGR ~13%. Use 11–12% for conservative estimate.</div>
+  </div>
+
+</div><!-- /assume-body -->
+
+<!-- ═══════ RESULTS ═══════ -->
+<div class="results" id="results">
+
+  <!-- verdict -->
+  <div class="vdict" id="vdict">
+    <div class="vico" id="vico"></div>
+    <div class="vtit" id="vtit"></div>
+    <div class="vsub" id="vsub"></div>
+  </div>
+
+  <!-- assumptions used — transparent card -->
+  <div class="src-card" id="srcCard"></div>
+
+  <!-- metrics -->
+  <div class="mg" id="mg"></div>
+
+  <!-- total cost table -->
+  <div class="tct" id="tct">
+    <div class="tct-h">20-year total cost comparison</div>
+    <div id="tctRows"></div>
+  </div>
+
+  <!-- charts -->
+  <div class="tabs">
+    <button class="tab on" onclick="stab('w',this)">Wealth</button>
+    <button class="tab" onclick="stab('e',this)">EMI vs rent</button>
+    <button class="tab" onclick="stab('d',this)">Down payment</button>
+  </div>
+  <div id="tw">
+    <div class="leg"><span><span class="ld" style="background:#1D9E75"></span>Home value</span><span><span class="ld" style="background:#BA7517"></span>Rent + SIP corpus</span></div>
+    <div class="cw"><canvas id="cw"></canvas></div>
+  </div>
+  <div id="te" style="display:none">
+    <div class="leg"><span><span class="ld" style="background:#1D9E75"></span>Monthly EMI</span><span><span class="ld" style="background:#BA7517"></span>Monthly rent</span></div>
+    <div class="cw"><canvas id="ce"></canvas></div>
+  </div>
+  <div id="td" style="display:none">
+    <div class="leg"><span><span class="ld" style="background:#1D9E75"></span>Home value</span><span><span class="ld" style="background:#185FA5"></span>Down in SIP</span></div>
+    <div class="cw"><canvas id="cd"></canvas></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- rate sensitivity -->
+  <div class="rbox" id="rbox">
+    <div class="rbh">⚠️ Floating rate risk — EMI impact if RBI changes rates</div>
+    <div class="rr"><span class="rrl">Base rate today</span><span id="rb"></span></div>
+    <div class="rr"><span class="rrl">If rates rise +1%</span><span id="rp1"></span></div>
+    <div class="rr"><span class="rrl">If rates rise +2%</span><span id="rp2"></span></div>
+    <div class="rr"><span class="rrl">If rates fall −1%</span><span id="rm1"></span></div>
+  </div>
+
+  <!-- share report -->
+  <div class="share-sec" id="shareSec">
+    <div class="share-lbl">Share your result</div>
+    <div class="share-main">
+      <button class="sb primary" onclick="shareImgWA()" style="flex:2"><i class="ti ti-brand-whatsapp"></i> Share image</button>
+      <button class="sb" onclick="downloadImg()"><i class="ti ti-download"></i> Save image</button>
+    </div>
+    <div class="share-sub">
+      <button class="sb" onclick="shareWA()"><i class="ti ti-message-circle"></i> Text to WhatsApp</button>
+      <button class="sb" id="cpbtn" onclick="copyR()"><i class="ti ti-copy"></i> Copy text</button>
+    </div>
+    <div class="ref-nudge">
+      <b>Know someone in this dilemma?</b>
+      Share the tool — it takes 2 taps and could save a bad decision.
+      <div class="ref-btns">
+        <button class="sb" onclick="shareToolWA()" style="font-size:12px"><i class="ti ti-brand-whatsapp"></i> Share tool</button>
+        <button class="sb" onclick="shareToolLinkedIn()" style="font-size:12px"><i class="ti ti-brand-linkedin"></i> LinkedIn</button>
+        <button class="sb" id="cpToolBtn" onclick="copyToolLink()" style="font-size:12px"><i class="ti ti-link"></i> Copy link</button>
+      </div>
+    </div>
+    <button class="recalc-btn" onclick="resetForFriend()"><i class="ti ti-refresh"></i> Recalculate for a friend</button>
+  </div>
+
+</div><!-- /results -->
+
+<canvas id="resultCanvas" style="display:none"></canvas>
+
+<div class="footer">
+  Built by <a href="https://jkadvisory.in" target="_blank">JK Advisory</a> · jkadvisory.in<br>
+  Data: NHB RESIDEX Q1 FY26 · CREDAI-Colliers Q3 2024 · bengaluru.rent Mar 2026 · NoBroker H1 2025<br>
+  Indicative only. Consult a SEBI-registered advisor before making decisions.
+</div>
+</div><!-- /pg -->
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const BHK_P={2:1,3:1.5,4:2.1};
+const BHK_R={2:1,3:1.45,4:1.9};
+const SEG_P={budget:.72,mid:1,luxury:1.65};
+const SEG_R={budget:.70,mid:1,luxury:1.60};
+const SEG_A={budget:-.5,mid:0,luxury:1};
+
+const D={
+  Bengaluru:{appr:9.0,yld:3.2,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'Whitefield',    hp:80, rent:35500,rentSrc:'bengaluru.rent Mar 2026 · 33 renters'},
+    {n:'Sarjapur Road', hp:90, rent:44000,rentSrc:'bengaluru.rent Mar 2026 · 57 renters'},
+    {n:'Bellandur',     hp:95, rent:45000,rentSrc:'bengaluru.rent Mar 2026 · 118 renters'},
+    {n:'Hebbal',        hp:85, rent:32000,rentSrc:'NoBroker 2025'},
+    {n:'Hennur',        hp:60, rent:23000,rentSrc:'bengaluru.rent Mar 2026 · 15 renters'},
+    {n:'HSR Layout',    hp:110,rent:38000,rentSrc:'bengaluru.rent Mar 2026 · 199 renters'},
+    {n:'Koramangala',   hp:130,rent:36000,rentSrc:'bengaluru.rent Mar 2026 · 93 renters'},
+    {n:'Indiranagar',   hp:140,rent:40500,rentSrc:'bengaluru.rent Mar 2026 · 132 renters'},
+    {n:'Marathahalli',  hp:75, rent:35000,rentSrc:'bengaluru.rent Mar 2026 · 74 renters'},
+    {n:'Electronic City',hp:55,rent:32500,rentSrc:'bengaluru.rent Mar 2026 · 25 renters'},
+    {n:'JP Nagar',      hp:85, rent:31300,rentSrc:'bengaluru.rent Mar 2026 · 32 renters'},
+    {n:'BTM Layout',    hp:80, rent:30500,rentSrc:'bengaluru.rent Mar 2026 · 51 renters'},
+    {n:'Yelahanka',     hp:65, rent:22000,rentSrc:'NoBroker 2025'},
+    {n:'Devanahalli',   hp:50, rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom',hp:70, rent:28000,rentSrc:'Enter your area estimates'},
+  ]},
+  Hyderabad:{appr:8.0,yld:2.8,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'Gachibowli',   hp:90, rent:28000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Kondapur',     hp:80, rent:26000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'HITEC City',   hp:95, rent:30000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Narsingi',     hp:70, rent:22000,rentSrc:'NoBroker 2025'},
+    {n:'Kukatpally',   hp:55, rent:18000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Miyapur',      hp:50, rent:16000,rentSrc:'NoBroker 2025'},
+    {n:'LB Nagar',     hp:45, rent:14000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Manikonda',    hp:65, rent:20000,rentSrc:'NoBroker 2025'},
+    {n:'Kokapet',      hp:85, rent:25000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom',hp:65,rent:22000,rentSrc:'Enter your area estimates'},
+  ]},
+  Chennai:{appr:7.0,yld:3.5,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'OMR (IT corridor)',hp:70,rent:22000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Perumbakkam',  hp:55, rent:18000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Velachery',    hp:75, rent:20000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Sholinganallur',hp:65,rent:19000,rentSrc:'NoBroker 2025'},
+    {n:'Ambattur',     hp:50, rent:14000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Tambaram',     hp:45, rent:12000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Porur',        hp:65, rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Anna Nagar',   hp:90, rent:24000,rentSrc:'NoBroker 2025'},
+    {n:'Adyar',        hp:110,rent:28000,rentSrc:'NoBroker 2025'},
+    {n:'Avadi',        hp:35, rent:10000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Other / custom',hp:55,rent:16000,rentSrc:'Enter your area estimates'},
+  ]},
+  Pune:{appr:6.5,yld:3.0,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'Hinjewadi',      hp:65, rent:22000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Kharadi',        hp:70, rent:24000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Baner',          hp:80, rent:25000,rentSrc:'NoBroker 2025'},
+    {n:'Wakad',          hp:60, rent:20000,rentSrc:'NoBroker 2025'},
+    {n:'Hadapsar',       hp:50, rent:16000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Wagholi',        hp:45, rent:14000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Pimple Saudagar',hp:60, rent:18000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Viman Nagar',    hp:80, rent:22000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Koregaon Park',  hp:120,rent:32000,rentSrc:'NoBroker 2025'},
+    {n:'Kothrud',        hp:90, rent:24000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom', hp:55, rent:18000,rentSrc:'Enter your area estimates'},
+  ]},
+  NCR:{appr:6.0,yld:2.5,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'Noida Ext (GN)',   hp:55, rent:16000,rentSrc:'NoBroker 2025'},
+    {n:'Noida Sector 62',  hp:75, rent:20000,rentSrc:'NoBroker 2025'},
+    {n:'Gurugram DLF',     hp:130,rent:35000,rentSrc:'NoBroker 2025'},
+    {n:'Gurugram Sohna Rd',hp:80, rent:22000,rentSrc:'NoBroker 2025'},
+    {n:'Faridabad',        hp:45, rent:13000,rentSrc:'NoBroker 2025'},
+    {n:'Ghaziabad',        hp:45, rent:12000,rentSrc:'NoBroker 2025'},
+    {n:'Dwarka',           hp:85, rent:22000,rentSrc:'NoBroker 2025'},
+    {n:'South Delhi',      hp:180,rent:45000,rentSrc:'NoBroker 2025'},
+    {n:'Indirapuram',      hp:65, rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom',   hp:70, rent:18000,rentSrc:'Enter your area estimates'},
+  ]},
+  Mumbai:{appr:5.5,yld:2.2,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'Thane',        hp:90, rent:28000,rentSrc:'NoBroker 2025'},
+    {n:'Navi Mumbai',  hp:80, rent:22000,rentSrc:'NoBroker 2025'},
+    {n:'Mira Road',    hp:65, rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Andheri',      hp:140,rent:40000,rentSrc:'NoBroker 2025'},
+    {n:'Powai',        hp:160,rent:45000,rentSrc:'NoBroker 2025'},
+    {n:'Goregaon',     hp:130,rent:35000,rentSrc:'NoBroker 2025'},
+    {n:'Kharghar',     hp:70, rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Panvel',       hp:55, rent:14000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom',hp:90,rent:28000,rentSrc:'Enter your area estimates'},
+  ]},
+  Ahmedabad:{appr:6.8,yld:3.2,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'SG Highway',    hp:60,rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Prahlad Nagar', hp:75,rent:20000,rentSrc:'NoBroker 2025'},
+    {n:'Bopal',         hp:55,rent:15000,rentSrc:'NoBroker 2025'},
+    {n:'Satellite',     hp:85,rent:22000,rentSrc:'NoBroker 2025'},
+    {n:'Gota',          hp:45,rent:12000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom',hp:55,rent:15000,rentSrc:'Enter your area estimates'},
+  ]},
+  Kolkata:{appr:5.5,yld:3.8,apprSrc:'NHB RESIDEX Q1 FY26',areas:[
+    {n:'New Town',      hp:55,rent:16000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Salt Lake',     hp:65,rent:18000,rentSrc:'EazeMy Rent Apr 2026'},
+    {n:'Rajarhat',      hp:45,rent:14000,rentSrc:'NoBroker 2025'},
+    {n:'Ballygunge',    hp:90,rent:24000,rentSrc:'NoBroker 2025'},
+    {n:'Behala',        hp:40,rent:10000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom',hp:50,rent:14000,rentSrc:'Enter your area estimates'},
+  ]},
+  Kochi:{appr:4.5,yld:3.5,apprSrc:'NHB RESIDEX 2024',areas:[
+    {n:'Kakkanad IT',    hp:55,rent:16000,rentSrc:'NoBroker 2025'},
+    {n:'Edapally',       hp:65,rent:18000,rentSrc:'NoBroker 2025'},
+    {n:'Thrippunithura', hp:50,rent:14000,rentSrc:'NoBroker 2025'},
+    {n:'Palarivattom',   hp:70,rent:19000,rentSrc:'NoBroker 2025'},
+    {n:'Aluva',          hp:40,rent:12000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom', hp:50,rent:14000,rentSrc:'Enter your area estimates'},
+  ]},
+  Coimbatore:{appr:6.0,yld:4.0,apprSrc:'NHB RESIDEX 2024',areas:[
+    {n:'Peelamedu',      hp:45,rent:12000,rentSrc:'NoBroker 2025'},
+    {n:'Saravanampatti', hp:40,rent:10000,rentSrc:'NoBroker 2025'},
+    {n:'Singanallur',    hp:35,rent:9000, rentSrc:'NoBroker 2025'},
+    {n:'RS Puram',       hp:55,rent:14000,rentSrc:'NoBroker 2025'},
+    {n:'Ganapathy',      hp:35,rent:9000, rentSrc:'NoBroker 2025'},
+    {n:'Other / custom', hp:38,rent:10000,rentSrc:'Enter your area estimates'},
+  ]},
+  Vizag:{appr:5.5,yld:3.8,apprSrc:'NHB RESIDEX 2024',areas:[
+    {n:'MVP Colony',     hp:45,rent:12000,rentSrc:'NoBroker 2025'},
+    {n:'Rushikonda',     hp:55,rent:14000,rentSrc:'NoBroker 2025'},
+    {n:'Madhurawada',    hp:40,rent:11000,rentSrc:'NoBroker 2025'},
+    {n:'Seethammadhara', hp:50,rent:13000,rentSrc:'NoBroker 2025'},
+    {n:'Other / custom', hp:45,rent:12000,rentSrc:'Enter your area estimates'},
+  ]},
+  Jaipur:{appr:7.0,yld:3.5,apprSrc:'NHB RESIDEX 2024',areas:[
+    {n:'Vaishali Nagar', hp:50,rent:13000,rentSrc:'NoBroker 2025'},
+    {n:'Malviya Nagar',  hp:60,rent:15000,rentSrc:'NoBroker 2025'},
+    {n:'Mansarovar',     hp:45,rent:12000,rentSrc:'NoBroker 2025'},
+    {n:'Jagatpura',      hp:40,rent:10000,rentSrc:'NoBroker 2025'},
+    {n:'Sirsi Road',     hp:35,rent:9000, rentSrc:'NoBroker 2025'},
+    {n:'Other / custom', hp:45,rent:12000,rentSrc:'Enter your area estimates'},
+  ]}
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────
+let city='Bengaluru', areaIdx=0, propType='flat', bhk=2, seg='mid', loanYN='yes', tenure=20;
+let charts={};
+
+// ── INIT ──────────────────────────────────────────────────────────────
+function init(){
+  populateAreas();
+  applyDefaults();
+  autoCalc();
+}
+
+function populateAreas(){
+  const c=document.getElementById('citySelect').value;
+  if(c==='Other'){return;}
+  city=c;
+  const sel=document.getElementById('areaSelect');
+  const areas=D[city].areas;
+  sel.innerHTML=areas.map((a,i)=>`<option value="${i}">${a.n}</option>`).join('');
+  areaIdx=0;
+}
+
+function onCityChange(){
+  const c=document.getElementById('citySelect').value;
+  const isOther=c==='Other';
+  document.getElementById('otherCityWrap').style.display=isOther?'block':'none';
+  document.getElementById('areaSelect').style.display=isOther?'none':'block';
+  if(!isOther){city=c; populateAreas(); applyDefaults();}
+  autoCalc();
+}
+
+function onAreaChange(){
+  areaIdx=parseInt(document.getElementById('areaSelect').value)||0;
+  applyDefaults();
+  autoCalc();
+}
+
+function applyDefaults(){
+  if(document.getElementById('citySelect').value==='Other') return;
+  const area=D[city].areas[areaIdx];
+  const cd=D[city];
+  // price
+  const adjP=Math.round(area.hp*BHK_P[bhk]*SEG_P[seg]);
+  setSlider('hp',adjP);
+  // appreciation
+  const apprAdj=SEG_A[seg]+(propType==='preowned'?-1:0);
+  setSlider('appr',+(cd.appr+apprAdj).toFixed(1));
+  document.getElementById('apprHint').textContent=`${cd.appr}% base (${cd.apprSrc})${apprAdj!==0?' + '+apprAdj+'% segment/type adj':''}`;
+  // rent
+  const adjR=Math.round(area.rent*BHK_R[bhk]*SEG_R[seg]);
+  setSlider('rent',adjR);
+  document.getElementById('rentHint').textContent=`Source: ${area.rentSrc} · ${bhk}BHK ${seg} adjustment applied`;
+  updDisplays();
+}
+
+// ── TOGGLE CONTROLS ───────────────────────────────────────────────────
+function toggleAssume(){
+  const body=document.getElementById('assumeBody');
+  const btn=document.getElementById('assumeToggle');
+  const open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  btn.classList.toggle('open',!open);
+}
+function setProp(el){
+  document.querySelectorAll('#propChips .tb').forEach(b=>b.classList.remove('on','ont'));
+  el.classList.add('on'); propType=el.dataset.pt;
+  document.getElementById('depNote').style.display=propType==='preowned'?'block':'none';
+  applyDefaults(); autoCalc();
+}
+function setBHK(el){
+  document.querySelectorAll('#bhkChips .tb').forEach(b=>b.classList.remove('on','ont'));
+  el.classList.add('on'); bhk=parseInt(el.dataset.bhk);
+  applyDefaults(); autoCalc();
+}
+function setSeg(el){
+  document.querySelectorAll('#segChips .tb').forEach(b=>b.classList.remove('on','ont'));
+  el.classList.add('on'); seg=el.dataset.seg;
+  applyDefaults(); autoCalc();
+}
+function setLoanYN(el){
+  document.querySelectorAll('#loanYN .tb').forEach(b=>b.classList.remove('on','ont'));
+  el.classList.add('on'); loanYN=el.dataset.ln;
+  document.getElementById('loanFields').style.display=loanYN==='yes'?'block':'none';
+  autoCalc();
+}
+function setTenure(el){
+  document.querySelectorAll('#tenureG .tb').forEach(b=>b.classList.remove('on','ont'));
+  el.classList.add('on'); tenure=parseInt(el.dataset.t); autoCalc();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function setSlider(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function g(id){return parseFloat(document.getElementById(id).value);}
+function fL(v){if(v===undefined||isNaN(v))return '—';if(v>=100)return '₹'+(v/100).toFixed(2)+' Cr';return '₹'+Math.round(v)+'L';}
+function fINR(v){return '₹'+Math.round(v).toLocaleString('en-IN');}
+function emiCalc(p,r,y){const rm=r/100/12,n=y*12;if(!rm||!p)return 0;return p*rm*Math.pow(1+rm,n)/(Math.pow(1+rm,n)-1);}
+
+function updDisplays(){
+  const hp=g('hp'),dp=g('dp'),ir=g('ir'),appr=g('appr'),rent=g('rent'),rg=g('rg'),mf=g('mf');
+  const el=id=>document.getElementById(id);
+  el('hpV').textContent=fL(hp);
+  el('dpV').textContent=dp+'%';
+  el('apprV').textContent=appr+'%';
+  el('irV').textContent=ir+'%';
+  el('rentV').textContent=fINR(rent);
+  el('rgV').textContent=rg+'%';
+  el('mfV').textContent=mf+'%';
+}
+
+// ── AUTO CALCULATE ────────────────────────────────────────────────────
+let calcTimer=null;
+function autoCalc(){
+  updDisplays();
+  clearTimeout(calcTimer);
+  calcTimer=setTimeout(runCalc,180);
+}
+
+function getOtherInputs(){
+  const hp=parseFloat(document.getElementById('otherPrice').value)||50;
+  const rent=parseFloat(document.getElementById('otherRent').value)||15000;
+  const appr=parseFloat(document.getElementById('otherAppr').value)||6;
+  return {hp,rent,appr};
+}
+
+function runCalc(){
+  const isOther=document.getElementById('citySelect').value==='Other';
+  let areaName,rentSrc,apprSrc,apprBase,baseRent,baseHp;
+
+  if(isOther){
+    const oi=getOtherInputs();
+    areaName=document.getElementById('otherCityName').value||'Custom city';
+    rentSrc='User estimate'; apprSrc='User estimate';
+    apprBase=oi.appr; baseRent=oi.rent; baseHp=oi.hp;
+    setSlider('hp',baseHp); setSlider('rent',baseRent); setSlider('appr',apprBase);
+  } else {
+    const area=D[city].areas[areaIdx];
+    const cd=D[city];
+    areaName=area.n.startsWith('Other')?'Custom area, '+city:area.n+', '+city;
+    rentSrc=area.rentSrc; apprSrc=cd.apprSrc; apprBase=cd.appr;
+  }
+
+  const homeL=g('hp'), dpPct=g('dp')/100, ir=g('ir');
+  const apprR=g('appr')/100, rent0=g('rent');
+  const rgR=g('rg')/100, mfR=g('mf')/100;
+  const YEARS=20;
+  const homeVal0=homeL*1e5;
+  const downAmt=loanYN==='no'?homeVal0:homeVal0*dpPct;
+  const loanAmt=loanYN==='no'?0:homeVal0-downAmt;
+  const monthlyEMI=loanYN==='no'?0:emiCalc(loanAmt,ir,tenure);
+  const depRate=propType==='preowned'?1.2:0;
+
+  let labels=[],homeArr=[],sipArr=[],emiArr=[],rentArr=[],dpHomeArr=[],dpSipArr=[];
+  let homeVal=homeVal0,seedSIP=downAmt,diffSIP=0,curRent=rent0;
+  let totalRent=0,totalEMI=0;
+
+  for(let y=0;y<=YEARS;y++){
+    labels.push('Y'+y);
+    let hv=depRate>0
+      ?(homeVal0*.4*Math.pow(1+apprR,y)+homeVal0*.6*Math.pow(1-depRate/100,y))/1e5
+      :homeVal/1e5;
+    homeArr.push(+hv.toFixed(1));
+    dpHomeArr.push(+hv.toFixed(1));
+    dpSipArr.push(+(seedSIP/1e5).toFixed(1));
+    sipArr.push(+((seedSIP+diffSIP)/1e5).toFixed(1));
+    emiArr.push(Math.round(monthlyEMI));
+    rentArr.push(Math.round(curRent));
+    if(y<YEARS){
+      homeVal*=(1+apprR);
+      seedSIP*=(1+mfR);
+      const md=monthlyEMI-curRent;
+      diffSIP=md>0?(diffSIP+md*12)*(1+mfR):diffSIP*(1+mfR);
+      totalRent+=curRent*12;
+      totalEMI+=monthlyEMI*12;
+      curRent*=(1+rgR);
+    }
+  }
+
+  const fH=homeArr[YEARS],fS=sipArr[YEARS],fDP=dpSipArr[YEARS];
+  const totalRentL=Math.round(totalRent/1e5);
+  const totalEMIL=Math.round(totalEMI/1e5);
+  const totalIntL=loanYN==='no'?0:Math.round((monthlyEMI*tenure*12-loanAmt)/1e5);
+  const diff=fH-fS;
+  const cashFlowDiff=loanYN==='yes'?Math.round(monthlyEMI-rent0):0;
+
+  // verdict
+  let vc,ico,vtit,vsub;
+  if(loanYN==='no'){
+    if(diff>fH*.05){vc='buy';ico='🏠';vtit='Buying outperforms SIP';vsub=`Paying ${fL(homeL)} cash beats investing the same in SIP at ${Math.round(mfR*100)}% by ${fL(Math.abs(diff))} over 20 years. Real estate wins — illiquidity is the trade-off.`;}
+    else if(diff<-Math.abs(fS)*.05){vc='rent';ico='📈';vtit='SIP outperforms buying';vsub=`Investing ${fL(homeL)} in SIP at ${Math.round(mfR*100)}% p.a. beats buying outright by ${fL(Math.abs(diff))} over 20 years. Liquidity and compounding favour SIP.`;}
+    else{vc='dep';ico='⚖️';vtit='Too close to call';vsub='SIP and property deliver similar 20-year wealth. Decision depends on liquidity needs and how much you value owning.';}
+  } else if(diff>fH*.07){
+    vc='buy';ico='🏠';vtit='Buying wins in '+areaName.split(',')[0];
+    vsub=`Over 20 years, buying a ${bhk}BHK builds ${fL(Math.abs(diff))} more than renting + SIP. Property at ${g('appr').toFixed(1)}% p.a. and the discipline of EMI saving tip the balance.`;
+  } else if(diff<-Math.abs(fS)*.07){
+    vc='rent';ico='📈';vtit='Renting + SIP wins';
+    vsub=`Down payment + monthly EMI–rent surplus invested in SIP at ${Math.round(mfR*100)}% builds ${fL(Math.abs(diff))} more than buying. Only works if you invest every rupee of the surplus — every month.`;
+  } else {
+    vc='dep';ico='⚖️';vtit='Too close to call';
+    vsub='The 20-year gap is within 7%. Job stability, family plans, and the emotional value of ownership matter more than the numbers here.';
+  }
+
+  // FIX 1a: Marginal buy — warn if advantage < 15% of home value and rates could tip it
+  if(vc==='buy' && diff < fH*0.15 && loanYN==='yes'){
+    vsub += ` Marginal advantage — if floating rates rise by 1–2%, this could tip towards renting. Stress-test below.`;
+  }
+
+  // FIX 1b: SIP discipline callout
+  if(vc==='rent'&&loanYN==='yes'&&cashFlowDiff>0)
+    vsub+=` Invest the ₹${cashFlowDiff.toLocaleString('en-IN')}/mo surplus as SIP — without exception.`;
+
+  // FIX 1c: Cash purchase — add effective rent cost context
+  if(loanYN==='no'&&vc==='rent'){
+    const effectiveAdv=Math.abs(diff)-totalRentL;
+    vsub+=` Note: renter also pays ₹${totalRentL}L in rent over 20 years. After rent outflow, SIP still leads by ~${fL(Math.max(0,effectiveAdv))}.`;
+  }
+
+  // FIX 1d: High MF assumption disclaimer
+  if(mfR*100 >= 12){
+    vsub+=` (Assumes ${Math.round(mfR*100)}% SIP returns sustained over 20 yrs — equity markets vary. Try 10% for a conservative view.)`;
+  }
+
+  // render verdict
+  const vb=document.getElementById('vdict');
+  vb.className='vdict '+vc; vb.style.display='block';
+  document.getElementById('vico').textContent=ico;
+  document.getElementById('vtit').textContent=vtit;
+  document.getElementById('vsub').textContent=vsub;
+
+  // assumptions source card
+  const cd=isOther?null:D[city];
+  document.getElementById('srcCard').innerHTML=`
+    <div class="row"><span class="lbl">Location</span><span class="val">${areaName}</span></div>
+    <div class="row"><span class="lbl">Property</span><span class="val">${bhk}BHK ${seg} ${propType} · ₹${homeL}L</span></div>
+    <div class="row"><span class="lbl">Appreciation</span><span class="val">${g('appr').toFixed(1)}% p.a.</span></div>
+    <div class="row"><span class="lbl">2BHK ${seg} rent</span><span class="val">${fINR(rent0)}/mo</span></div>
+    ${loanYN==='yes'?`<div class="row"><span class="lbl">Home loan</span><span class="val">${g('dp')}% down · ${ir}% floating · ${tenure} yrs</span></div>`:''}
+    <div class="row"><span class="lbl">MF return assumed</span><span class="val">${Math.round(mfR*100)}% p.a.</span></div>
+    <div class="src">Appreciation: ${apprSrc} · Rent: ${rentSrc} · Rental growth: NoBroker H1 2025</div>
+  `;
+
+  // cash flow
+  const cfLabel=cashFlowDiff>0?`+${fINR(cashFlowDiff)}/mo vs rent`:cashFlowDiff<0?`${fINR(Math.abs(cashFlowDiff))}/mo cheaper than rent`:'Equal to rent';
+  document.getElementById('mg').innerHTML=`
+    <div class="mc wide">
+      <div class="ml">Monthly cash flow — right now</div>
+      <div class="mv">${loanYN==='no'?'Cash purchase — no EMI':cfLabel}</div>
+      <div class="ms">${loanYN==='no'?'Compare: appreciation vs SIP':cashFlowDiff>0?'Extra outflow vs renting today':'Savings vs renting today'}</div>
+    </div>
+    <div class="mc"><div class="ml">Home value (yr 20)</div><div class="mv">${fL(fH)}</div><div class="ms">${g('appr').toFixed(1)}% p.a. appreciation</div></div>
+    <div class="mc"><div class="ml">Rent + SIP corpus</div><div class="mv">${fL(fS)}</div><div class="ms">Down + surplus @${Math.round(mfR*100)}% SIP</div></div>
+    <div class="mc"><div class="ml">${loanYN==='no'?'Cash in SIP':'Down in SIP'}</div><div class="mv">${fL(fDP)}</div><div class="ms">Compounded @${Math.round(mfR*100)}% p.a.</div></div>
+    <div class="mc"><div class="ml">Net advantage</div><div class="mv" style="color:${diff>=0?'var(--t)':'var(--a)'}">${diff>=0?'Buying +'+fL(diff):'SIP +'+fL(Math.abs(diff))}</div><div class="ms">over 20 years</div></div>
+  `;
+
+  // total cost table
+  document.getElementById('tctRows').innerHTML=`
+    ${loanYN==='yes'?`
+    <div class="tct-r"><span>Total EMI paid (${tenure}-yr loan)</span><span class="amt">${fL(totalEMIL)}</span></div>
+    <div class="tct-r"><span>Of which interest</span><span class="amt">${fL(totalIntL)}</span></div>`:''}
+    <div class="tct-r"><span>Total rent paid (rent path, 20 yrs)</span><span class="amt">${fL(totalRentL)}</span></div>
+    ${loanYN==='no'?`<div class="tct-r" style="color:var(--tx2)"><span>Rent outflow renter pays (20 yrs)</span><span class="amt">${fL(totalRentL)}</span></div>
+    <div class="tct-r" style="color:var(--tx2)"><span>SIP corpus after rent outflow</span><span class="amt">${fL(Math.max(0,fS-totalRentL))}</span></div>`:''}
+    <div class="tct-r"><span>Home value at yr 20</span><span class="amt">${fL(fH)}</span></div>
+    <div class="tct-r"><span>SIP corpus at yr 20</span><span class="amt">${fL(fS)}</span></div>
+    ${loanYN==='yes'&&tenure<20?`<div class="tct-r" style="font-size:11px;font-weight:400;color:var(--tx3);border:none"><span>After yr ${tenure} EMI ends — you own free & clear while renter still pays rent</span><span></span></div>`:''}
+    ${loanYN==='yes'?`<div class="tct-r" style="font-size:11px;font-weight:400;color:var(--tx3);border:none"><span>💡 Sec 24b: up to ₹2L/yr home loan interest deductible (old tax regime)</span><span></span></div>`:''}
+    ${mfR*100>=12?`<div class="tct-r" style="font-size:11px;font-weight:400;color:var(--tx3);border:none"><span>⚠️ SIP at ${Math.round(mfR*100)}% assumed. Try 10% for a conservative scenario.</span><span></span></div>`:''}
+    <div class="tct-r"><span>Net advantage</span><span class="amt" style="color:${diff>=0?'var(--t)':'var(--a)'}">${diff>=0?'Buying +'+fL(diff):'Renting / SIP +'+fL(Math.abs(diff))}</span></div>
+  `;
+  document.getElementById('tct').style.display='block';
+
+  // rate sensitivity
+  const rateRows=[];
+  if(loanYN==='yes'){
+    document.getElementById('rbox').style.display='block';
+    document.getElementById('rb').textContent=`${fINR(monthlyEMI)}/mo`;
+    const ep1=emiCalc(loanAmt,ir+1,tenure),ep2=emiCalc(loanAmt,ir+2,tenure),em1=emiCalc(loanAmt,Math.max(6,ir-1),tenure);
+    document.getElementById('rp1').textContent=`${fINR(ep1)}/mo (+${fINR(ep1-monthlyEMI)})`;
+    document.getElementById('rp2').textContent=`${fINR(ep2)}/mo (+${fINR(ep2-monthlyEMI)})`;
+    document.getElementById('rm1').textContent=`${fINR(em1)}/mo (-${fINR(monthlyEMI-em1)})`;
+    rateRows.push({l:'Base',v:fINR(monthlyEMI)+'/mo'},{l:'+1%',v:fINR(ep1)+'/mo'},{l:'+2%',v:fINR(ep2)+'/mo'});
+  } else {
+    document.getElementById('rbox').style.display='none';
+  }
+
+  // show share
+  document.getElementById('results').style.display='block';
+  document.getElementById('shareSec').style.display='block';
+
+  // charts
+  ['w','e','d'].forEach(k=>{if(charts[k])charts[k].destroy();});
+  const co=(yf)=>({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>yf(ctx.parsed.y)}}},scales:{y:{ticks:{callback:yf,font:{size:9}},grid:{color:'rgba(128,128,128,.07)'}},x:{ticks:{font:{size:9},maxTicksLimit:6,autoSkip:true}}}});
+  charts.w=new Chart(document.getElementById('cw'),{type:'line',data:{labels,datasets:[{label:'Home',data:homeArr,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.08)',tension:.3,pointRadius:0,borderWidth:2,fill:true},{label:'SIP',data:sipArr,borderColor:'#BA7517',backgroundColor:'rgba(186,117,23,.07)',tension:.3,pointRadius:0,borderWidth:2,borderDash:[5,3],fill:true}]},options:co(v=>fL(v))});
+  charts.e=new Chart(document.getElementById('ce'),{type:'line',data:{labels,datasets:[{label:'EMI',data:emiArr,borderColor:'#1D9E75',tension:.1,pointRadius:0,borderWidth:2},{label:'Rent',data:rentArr,borderColor:'#BA7517',tension:.3,pointRadius:0,borderWidth:2,borderDash:[5,3]}]},options:co(v=>'₹'+Math.round(v/1000)+'k')});
+  charts.d=new Chart(document.getElementById('cd'),{type:'line',data:{labels,datasets:[{label:'Home',data:dpHomeArr,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.08)',tension:.3,pointRadius:0,borderWidth:2,fill:true},{label:'SIP',data:dpSipArr,borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,.07)',tension:.3,pointRadius:0,borderWidth:2,borderDash:[5,3],fill:true}]},options:co(v=>fL(v))});
+
+  window._s={city:isOther?document.getElementById('otherCityName').value||'Custom':city,areaName,bhk,seg,propType,loanYN,tenure,homeL,dpPct:Math.round(dpPct*100),ir,rent0:Math.round(rent0),mfR:Math.round(mfR*100),monthlyEMI:Math.round(monthlyEMI),fH,fS,fDP,diff,totalRentL,totalEMIL,totalIntL,appr:g('appr').toFixed(1),vc,vtit,vsub,rateRows};
+}
+
+function stab(t,el){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  ['w','e','d'].forEach(id=>document.getElementById('t'+id).style.display=id===t?'block':'none');
+}
+
+// ── TOOL URL ──────────────────────────────────────────────────────────
+const TOOL_URL='https://tools.jkadvisory.in/rent-vs-buy/';
+const TOOL_MSG='🏠 Free Rent vs Buy Calculator for India — auto-calculates by city & area using NHB RESIDEX data. Takes 10 seconds. Built by JK Advisory.';
+
+function shareToolLink(){
+  if(navigator.share&&/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+    navigator.share({title:'Rent vs Buy Calculator',text:TOOL_MSG,url:TOOL_URL}).catch(()=>{});
+  } else {
+    copyToClipboard(TOOL_URL,'shareTopBtn','<i class="ti ti-share-2"></i> Share tool','✓ Link copied!');
+  }
+}
+function shareToolWA(){window.open('https://wa.me/?text='+encodeURIComponent(TOOL_MSG+'\n'+TOOL_URL),'_blank');}
+function shareToolLinkedIn(){window.open('https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(TOOL_URL),'_blank');}
+function copyToolLink(){copyToClipboard(TOOL_URL,'cpToolBtn','<i class="ti ti-link"></i> Copy link','✓ Copied!');}
+
+// ── TEXT REPORT ───────────────────────────────────────────────────────
+function report(){
+  const s=window._s; if(!s)return '';
+  const fin=s.loanYN==='no'?'Full cash':s.ir+'% floating · '+s.tenure+' yrs · '+s.dpPct+'% down';
+  return `🏠 Rent vs Buy — ${s.bhk}BHK ${s.seg} · ${s.areaName}
+Property: ${s.propType} · ₹${s.homeL}L · Appreciation: ${s.appr}% p.a.
+Financing: ${fin}
+${s.loanYN==='yes'?'EMI: ₹'+s.monthlyEMI.toLocaleString('en-IN')+'/mo vs rent ₹'+s.rent0.toLocaleString('en-IN')+'/mo':''}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 20-year outcome
+Home value:      ${fL(s.fH)}
+Rent + SIP:      ${fL(s.fS)} (@${s.mfR}%)
+Down in SIP:     ${fL(s.fDP)}
+${s.loanYN==='yes'?'Total EMI paid:  '+fL(s.totalEMIL)+' (incl. ₹'+s.totalIntL+'L interest)\n':''}Total rent paid: ${fL(s.totalRentL)}
+Net: ${s.diff>=0?'Buying +'+fL(s.diff):'Renting / SIP +'+fL(Math.abs(s.diff))}
+
+✅ ${s.vtit}
+
+Data: NHB RESIDEX · CREDAI-Colliers · bengaluru.rent · NoBroker
+${TOOL_URL}`;
+}
+function shareWA(){window.open('https://wa.me/?text='+encodeURIComponent(report()),'_blank');}
+function copyR(){copyToClipboard(report(),'cpbtn','<i class="ti ti-copy"></i> Copy text','✓ Copied!');}
+
+// ── CLIPBOARD ─────────────────────────────────────────────────────────
+function copyToClipboard(text,btnId,resetHtml,doneHtml){
+  const btn=btnId?document.getElementById(btnId):null;
+  const done=()=>{if(btn){btn.innerHTML=doneHtml;setTimeout(()=>btn.innerHTML=resetHtml,2200);}};
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,cb){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.cssText='position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{document.execCommand('copy');}catch(e){}
+  document.body.removeChild(ta); if(cb)cb();
+}
+
+// ── RECALC FOR FRIEND ─────────────────────────────────────────────────
+function resetForFriend(){
+  document.getElementById('results').style.display='none';
+  window._s=null;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── IMAGE CARD ────────────────────────────────────────────────────────
+function buildResultCard(cb){
+  const s=window._s; if(!s){cb(null);return;}
+  const W=720,H=880;
+  const canvas=document.getElementById('resultCanvas');
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  const BG='#ffffff',BG2='#F8F7F4',TEAL='#1D9E75',AMBER='#BA7517',TX='#1a1a1a',TX2='#555555',TX3='#888888';
+  const vC={buy:{bg:'#E1F5EE',br:'#5DCAA5'},rent:{bg:'#FAEEDA',br:'#EF9F27'},dep:{bg:'#E6F1FB',br:'#85B7EB'}};
+  const vc=vC[s.vc]||vC.dep;
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+  function wrap(t,x,y,mw,lh){const ws=t.split(' ');let l='';for(const w of ws){const tt=l+w+' ';if(ctx.measureText(tt).width>mw&&l){ctx.fillText(l.trim(),x,y);l=w+' ';y+=lh;}else l=tt;}if(l.trim())ctx.fillText(l.trim(),x,y);return y;}
+  ctx.fillStyle=BG;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=TEAL;ctx.fillRect(0,0,W,10);
+  ctx.fillStyle=TX;ctx.font='bold 28px Arial,sans-serif';ctx.fillText('Rent vs Buy  —  JK Advisory',40,54);
+  ctx.fillStyle=TX2;ctx.font='17px Arial,sans-serif';ctx.fillText(s.bhk+'BHK '+s.seg+' · '+s.areaName,40,80);
+  // verdict
+  rr(24,100,W-48,108,12);ctx.fillStyle=vc.bg;ctx.fill();ctx.strokeStyle=vc.br;ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle=TX;ctx.font='bold 22px Arial,sans-serif';ctx.fillText(s.vtit,44,132);
+  ctx.fillStyle=TX2;ctx.font='15px Arial,sans-serif';wrap(s.vsub,44,158,W-90,22);
+  // assumptions strip
+  rr(24,222,W-48,68,10);ctx.fillStyle=BG2;ctx.fill();
+  const assumps=[['Appreciation',s.appr+'% p.a.'],['Loan rate',s.loanYN==='no'?'Cash':s.ir+'% floating'],['MF return',s.mfR+'% p.a.'],['Rent growth','7% p.a.']];
+  const aw=(W-48)/4;
+  assumps.forEach((a,i)=>{const ax=24+i*aw;ctx.fillStyle=TX3;ctx.font='12px Arial,sans-serif';ctx.fillText(a[0],ax+10,244);ctx.fillStyle=TX;ctx.font='bold 16px Arial,sans-serif';ctx.fillText(a[1],ax+10,270);});
+  // 4 metric cards
+  const metrics=[{l:'Home value (yr 20)',v:fL(s.fH),s:'buying path'},{l:'Rent + SIP corpus',v:fL(s.fS),s:'renting+investing'},{l:'Monthly EMI',v:s.loanYN==='no'?'Cash':fINR(s.monthlyEMI),s:s.loanYN==='yes'?'@ '+s.ir+'%':''},{l:'Net advantage',v:s.diff>=0?'Buy +'+fL(s.diff):'SIP +'+fL(Math.abs(s.diff)),s:'over 20 years',accent:true}];
+  const mW=326,mH=100,mGap=12,mY=308;
+  metrics.forEach((m,i)=>{const mx=24+(i%2)*(mW+mGap),my=mY+Math.floor(i/2)*(mH+mGap);rr(mx,my,mW,mH,10);ctx.fillStyle=BG2;ctx.fill();ctx.fillStyle=m.accent?(s.diff>=0?TEAL:AMBER):TEAL;ctx.fillRect(mx,my,4,mH);ctx.fillStyle=TX3;ctx.font='13px Arial,sans-serif';ctx.fillText(m.l,mx+14,my+24);ctx.fillStyle=m.accent?(s.diff>=0?TEAL:AMBER):TX;ctx.font='bold 26px Arial,sans-serif';ctx.fillText(m.v,mx+14,my+64);ctx.fillStyle=TX3;ctx.font='12px Arial,sans-serif';ctx.fillText(m.s,mx+14,my+88);});
+  // totals strip
+  const tY=542;rr(24,tY,W-48,68,10);ctx.fillStyle=BG2;ctx.fill();
+  const tots=s.loanYN==='yes'?[['Total EMI',fL(s.totalEMIL)],['Interest',fL(s.totalIntL)],['Total rent',fL(s.totalRentL)]]:[['Total rent',fL(s.totalRentL)],['SIP corpus',fL(s.fS)],['Net',s.diff>=0?'Buy +'+fL(s.diff):'SIP +'+fL(Math.abs(s.diff))]];
+  const tw=(W-48)/3;
+  tots.forEach((t,i)=>{const tx2=24+i*tw;ctx.fillStyle=TX3;ctx.font='12px Arial,sans-serif';ctx.fillText(t[0],tx2+12,tY+24);ctx.fillStyle=TX;ctx.font='bold 18px Arial,sans-serif';ctx.fillText(t[1],tx2+12,tY+54);if(i>0){ctx.strokeStyle='rgba(0,0,0,.08)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(tx2,tY+8);ctx.lineTo(tx2,tY+60);ctx.stroke();}});
+  // rate box
+  if(s.loanYN==='yes'&&s.rateRows&&s.rateRows.length){const rY=628;rr(24,rY,W-48,88,10);ctx.fillStyle='#FFF3EF';ctx.fill();ctx.strokeStyle='#F0997B';ctx.lineWidth=1.5;ctx.stroke();ctx.fillStyle='#8B2500';ctx.font='bold 14px Arial,sans-serif';ctx.fillText('⚠  Floating rate risk',40,rY+22);ctx.font='13px Arial,sans-serif';s.rateRows.forEach((r,i)=>{ctx.fillStyle=TX2;ctx.fillText(r.l,40,rY+44+i*20);ctx.fillStyle=TX;const vw=ctx.measureText(r.v).width;ctx.fillText(r.v,W-40-vw,rY+44+i*20);});}
+  // footer
+  ctx.fillStyle=TEAL;ctx.fillRect(0,H-48,W,2);
+  ctx.fillStyle=TX3;ctx.font='13px Arial,sans-serif';ctx.fillText('jkadvisory.in  ·  NHB RESIDEX · CREDAI-Colliers · bengaluru.rent · NoBroker',40,H-24);
+  ctx.font='11px Arial,sans-serif';ctx.fillText('Indicative only. Not investment advice.',40,H-8);
+  cb(canvas.toDataURL('image/png'));
+}
+
+function shareImgWA(){
+  buildResultCard(dataUrl=>{
+    if(!dataUrl){return;}
+    canvas2blob(dataUrl,blob=>{
+      const file=new File([blob],'rent-vs-buy-result.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        navigator.share({files:[file],title:'Rent vs Buy — JK Advisory',text:report()+'\n'+TOOL_URL}).catch(()=>{});
+      } else {
+        triggerDownload(dataUrl,'rent-vs-buy-result.png');
+        setTimeout(()=>window.open('https://wa.me/?text='+encodeURIComponent(report()+'\n\nImage downloaded — attach it!\n'+TOOL_URL),'_blank'),600);
+      }
+    });
+  });
+}
+function downloadImg(){buildResultCard(dataUrl=>{if(!dataUrl)return;triggerDownload(dataUrl,'rent-vs-buy-'+window._s.areaName.replace(/[^a-zA-Z0-9]/g,'-')+'.png');});}
+function canvas2blob(dataUrl,cb){const arr=dataUrl.split(','),mime=arr[0].match(/:(.*?);/)[1],bytes=atob(arr[1]),u8=new Uint8Array(bytes.length);for(let i=0;i<bytes.length;i++)u8[i]=bytes.charCodeAt(i);cb(new Blob([u8],{type:mime}));}
+function triggerDownload(dataUrl,filename){const a=document.createElement('a');a.href=dataUrl;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);}
+
+function fL(v){if(v===undefined||isNaN(v))return '—';if(v>=100)return '₹'+(v/100).toFixed(2)+' Cr';return '₹'+Math.round(v)+'L';}
+
+init();
+</script>
+</body>
+</html>
