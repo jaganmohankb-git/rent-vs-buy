@@ -764,6 +764,7 @@ function runCalc(){
     <div class="tct-r"><span>Total EMI paid (${tenure}-yr loan)</span><span class="amt">${fL(totalEMIL)}</span></div>
     <div class="tct-r"><span>Of which interest</span><span class="amt">${fL(totalIntL)}</span></div>`:''}
     <div class="tct-r"><span>Total rent paid (rent path, 20 yrs)</span><span class="amt">${fL(totalRentL)}</span></div>
+    <div class="tct-r" style="font-size:11px;font-weight:400;color:var(--tx3);border:none"><span>Assumes rent grows ${g('rg')}%/yr — reaches ~${fINR(rent0*Math.pow(1+rgR,19))}/mo by year 20</span><span></span></div>
     ${loanYN==='no'?`<div class="tct-r" style="color:var(--tx2)"><span>Rent outflow renter pays (20 yrs)</span><span class="amt">${fL(totalRentL)}</span></div>
     <div class="tct-r" style="color:var(--tx2)"><span>SIP corpus after rent outflow</span><span class="amt">${fL(Math.max(0,fS-totalRentL))}</span></div>`:''}
     <div class="tct-r"><span>Home value at yr 20</span><span class="amt">${fL(fH)}</span></div>
@@ -936,6 +937,13 @@ function fL(v){if(v===undefined||isNaN(v))return '—';if(v>=100)return '₹'+(v
 
 init();
 </script>
-<script data-goatcounter="https://rent-vs-buy.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y84LNMHX6S"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-Y84LNMHX6S');
+</script>
 </body>
 </html>
